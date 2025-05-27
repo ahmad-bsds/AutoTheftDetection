@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Theft Detection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0af;
+            --primary-dark: #0077cc;
+            --secondary: #001e3c;
+            --accent: #80deea;
+            --background: #001220;
+            --text: #e0f7fa;
+            --danger: #ff3d71;
+            --success: #00E676;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'SF Pro Display', sans-serif;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 35%, rgba(10, 175, 255, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 75% 65%, rgba(0, 230, 118, 0.1) 0%, transparent 25%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Animated Header */
+        .header {
+            position: relative;
+            text-align: center;
+            padding: 2rem 0;
+            overflow: hidden;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            position: relative;
+            color: var(--text);
+            display: inline-block;
+        }
+        
+        .header h1::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary);
+            animation: pulseHeight 4s infinite alternate;
+        }
+        
+        .header svg {
+            position: absolute;
+            width: 100%;
+            height: 120px;
+            bottom: -30px;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        /* Upload & Stream Form */
+        .control-panel {
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(10, 175, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), transparent, var(--accent), transparent);
+            border-radius: 14px;
+            z-index: -1;
+            filter: blur(5px);
+            opacity: 0.7;
+            animation: borderGlow 6s linear infinite;
+        }
+        
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+        
+        .form-group input[type="file"],
+        .form-group input[type="url"],
+        .form-group input[type="text"] {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .form-group input[type="file"]::file-selector-button {
+            background: var(--primary);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input[type="file"]::file-selector-button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 0.8rem 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            color: rgba(224, 247, 250, 0.7);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(10, 175, 255, 0.3);
+            margin: 0 10px;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(45deg);
+            z-index: 0;
+            transition: transform 0.6s ease;
+            transform-origin: 0 0;
+        }
+        
+        button:hover::before {
+            transform: rotate(45deg) translateY(-10%) translateX(10%);
+        }
+        
+        button:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 0 15px rgba(10, 175, 255, 0.5);
+        }
+        
+        .btn-green {
+            background: var(--success);
+        }
+        
+        .btn-green:hover {
+            background: #00C853;
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.5);
+        }
+        
+        .btn-red {
+            background: var(--danger);
+        }
+        
+        .btn-red:hover {
+            background: #FF1744;
+            box-shadow: 0 0 15px rgba(255, 61, 113, 0.5);
+        }
+        
+        /* License Plate Management */
+        .plate-management {
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .plate-management {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .plate-operation {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .plate-operation input {
+            flex: 1;
+        }
+        
+        #plate-status {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        #plate-status.visible {
+            opacity: 1;
+        }
+        
+        #plate-status.success {
+            background: rgba(0, 230, 118, 0.2);
+            color: var(--success);
+        }
+        
+        #plate-status.error {
+            background: rgba(255, 61, 113, 0.2);
+            color: var(--danger);
+        }
+        
+        /* Main Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Video Container with Scanner Effects */
+        .video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 30, 60, 0.5);
+            border: 1px solid rgba(10, 175, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+        
+        .video-feed {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+            position: relative;
+            z-index: 1;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        
+        .scanner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        /* Scanner Animation SVG */
+        .scanner-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .corner-tl, .corner-tr, .corner-bl, .corner-br {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            stroke-dasharray: 30 100;
+            animation: dashAnimation 4s linear infinite;
+        }
+        
+        .scan-line {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            stroke-dasharray: 5 8;
+            animation: scanAnimation 3s linear infinite;
+            opacity: 0.7;
+        }
+        
+        .scanner-pulse {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            top: 0;
+            left: 0;
+            animation: scanPulse 3s linear infinite;
+            opacity: 0.6;
+            z-index: 3;
+        }
+        
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(10, 175, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(10, 175, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 2;
+            opacity: 0.3;
+        }
+        
+        .video-feed.blinking {
+            animation: alertBlink 0.8s infinite;
+        }
+        
+        @keyframes alertBlink {
+            0%, 100% { box-shadow: 0 0 0 2px var(--danger); }
+            50% { box-shadow: 0 0 20px 2px var(--danger); }
+        }
+        
+        /* Theft Alert Banner */
+        .theft-alert-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 61, 113, 0.9);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 10;
+            display: none;
+            text-align: center;
+            animation: pulseAlert 1s infinite;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(255, 61, 113, 0.6);
+            white-space: nowrap;
+        }
+        
+        /* Alerts Panel */
+        .alerts {
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(10, 175, 255, 0.2);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alerts::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            animation: gradientMove 4s linear infinite;
+        }
+        
+        .alerts h2 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            position: relative;
+        }
+        
+        .alerts h2 i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        #plate-list {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--secondary);
+            padding-right: 10px;
+            max-height: 60vh;
+        }
+        
+        #plate-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #plate-list::-webkit-scrollbar-track {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+        
+        #plate-list::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .alert-box {
+            padding: 1rem;
+            background: rgba(0, 18, 32, 0.7);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            position: relative;
+            border-left: 3px solid var(--danger);
+            backdrop-filter: blur(8px);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .alert-box:last-child {
+            margin-bottom: 0;
+        }
+        
+        .alert-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 61, 113, 0.1), transparent);
+            border-radius: 10px;
+            z-index: -1;
+        }
+        
+        .alert-box strong {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .alert-box img {
+            margin-top: 0.8rem;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .alert-box img:hover {
+            transform: scale(1.03);
+        }
+        
+        /* Empty State */
+        .no-alerts {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(0, 18, 32, 0.7);
+            border-radius: 10px;
+            border: 1px dashed rgba(10, 175, 255, 0.3);
+        }
+        
+        .no-alerts i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            opacity: 0.5;
+        }
+        
+        /* Decorative Elements & Animations */
+        .data-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: particleFloat linear infinite;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+        
+        /* Keyframes for Animations */
+        @keyframes pulseHeight {
+            0% { height: 30%; top: 35%; }
+            100% { height: 100%; top: 0; }
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        @keyframes dashAnimation {
+            to { stroke-dashoffset: -130; }
+        }
+        
+        @keyframes scanAnimation {
+            to { stroke-dashoffset: -13; }
+        }
+        
+        @keyframes scanPulse {
+            0% { top: 0; }
+            50% { top: 100%; }
+            100% { top: 0; }
+        }
+        
+        @keyframes pulseAlert {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Auto Theft Detection</h1>
+            
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
+                fill="rgba(10, 175, 255, 0.2)"></path>
+            </svg>
+        </div>
+
+        <!-- Control Panel Section -->
+        <div class="control-panel">
+            <form action="/app" method="POST" enctype="multipart/form-data" class="upload-form">
+                <div class="form-group">
+                    <label>Upload Video File:</label>
+                    <input type="file" name="video">
+                </div>
+
+                <div class="divider">or</div>
+
+                <div class="form-group">
+                    <label>Use Video Stream URL:</label>
+                    <input type="url" name="stream_url" placeholder="http://192.168.1.100:8080/video">
+                </div>
+
+                <button type="submit">Start Detection</button>
+            </form>
+
+            <!-- License Plate Management -->
+            <div class="plate-management">
+                <div class="form-group">
+                    <label>Add Stolen Plate:</label>
+                    <div class="plate-operation">
+                        <input type="text" id="add-plate-input" placeholder="e.g., NA13NRZ">
+                        <button onclick="addPlate()" class="btn-green">Add</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Delete Stolen Plate:</label>
+                    <div class="plate-operation">
+                        <input type="text" id="delete-plate-input" placeholder="e.g., NA13NRU">
+                        <button onclick="deletePlate()" class="btn-red">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="plate-status"></div>
+        </div>
+
+        <div class="dashboard">
+            <div class="video-section">
+                <div class="video-container">
+                    <img id="video-feed" class="video-feed" src="/app/video_feed" alt="Live Video Feed">
+                    
+                    <div class="scanner-overlay">
+                        <div class="grid-lines"></div>
+                        
+                        <svg class="scanner-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <!-- Top-left corner -->
+                            <path class="corner-tl" d="M 0,10 L 0,0 L 10,0"></path>
+                            <!-- Top-right corner -->
+                            <path class="corner-tr" d="M 90,0 L 100,0 L 100,10"></path>
+                            <!-- Bottom-left corner -->
+                            <path class="corner-bl" d="M 0,90 L 0,100 L 10,100"></path>
+                            <!-- Bottom-right corner -->
+                            <path class="corner-br" d="M 90,100 L 100,100 L 100,90"></path>
+                            
+                            <!-- Scan lines -->
+                            <line class="scan-line" x1="0" y1="25" x2="100" y2="25" />
+                            <line class="scan-line" x1="0" y1="50" x2="100" y2="50" />
+                            <line class="scan-line" x1="0" y1="75" x2="100" y2="75" />
+                        </svg>
+                        
+                        <div class="scanner-pulse"></div>
+                    </div>
+                    
+                    <div id="theft-alert" class="theft-alert-banner">⚠️ Theft Detected!</div>
+                </div>
+            </div>
+
+            <div class="alerts">
+                <h2><i class="fas fa-exclamation-triangle"></i> Detected Stolen Vehicles</h2>
+                <div id="plate-list">
+                    <div class="no-alerts">
+                        <i class="fas fa-car"></i>
+                        <p>No stolen vehicles detected yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-particles" id="particles"></div>
+    
+    <audio id="alert-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+    <script>
+    // Create floating data particles for background effect
+    function createParticles() {
+        const container = document.getElementById('particles');
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            // Random positioning
+            const x = Math.floor(Math.random() * 100);
+            const delay = Math.random() * 20;
+            const duration = 15 + Math.random() * 20;
+            const size = Math.random() * 3;
+            
+            particle.style.left = `${x}%`;
+            particle.style.animationDelay = `${delay}s`;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.opacity = Math.random() * 0.5 + 0.2;
+            
+            container.appendChild(particle);
+        }
+    }
+    
+    async function addPlate() {
+        const plate = document.getElementById("add-plate-input").value.trim();
+        if (!plate) return showPlateStatus("Please enter a plate to add.", true);
+
+        try {
+            const res = await fetch("/app/plates/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ plate })
+            });
+            const data = await res.json();
+            showPlateStatus(data.message || "Plate added to watchlist.", false);
+            document.getElementById("add-plate-input").value = "";
+        } catch (e) {
+            showPlateStatus("Error adding plate to database.", true);
+        }
+    }
+
+    async function deletePlate() {
+        const plate = document.getElementById("delete-plate-input").value.trim();
+        if (!plate) return showPlateStatus("Please enter a plate to delete.", true);
+
+        try {
+            const res = await fetch("/app/plates/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ plate })
+            });
+            const data = await res.json();
+            showPlateStatus(data.message || "Plate removed from watchlist.", false);
+            document.getElementById("delete-plate-input").value = "";
+        } catch (e) {
+            showPlateStatus("Error removing plate from database.", true);
+        }
+    }
+
+    function showPlateStatus(msg, isError) {
+        const el = document.getElementById("plate-status");
+        el.textContent = msg;
+        el.className = isError ? "error visible" : "success visible";
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            el.className = el.className.replace("visible", "");
+        }, 3000);
+    }
+    
+    let previousTheft = false;
+
+    function checkTheftStatus() {
+        fetch('/app/is_theft')
+            .then(res => res.json())
+            .then(data => {
+                const isTheft = data.is_theft;
+                const video = document.getElementById("video-feed");
+                const alertBanner = document.getElementById("theft-alert");
+                const alertSound = document.getElementById("alert-sound");
+
+                if (isTheft) {
+                    video.classList.add("blinking");
+                    alertBanner.style.display = "block";
+
+                    if (!previousTheft) {
+                        alertSound.play();
+                    }
+
+                    previousTheft = true;
+                } else {
+                    video.classList.remove("blinking");
+                    alertBanner.style.display = "none";
+                    previousTheft = false;
+                }
+            })
+            .catch(err => console.error("Error checking theft status:", err));
+    }
+
+    function fetchStolenPlates() {
+        fetch('/app/stolen_plates')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('plate-list');
+                if (data.stolen_plates && data.stolen_plates.length > 0) {
+                    list.innerHTML = '';
+                    data.stolen_plates.forEach(entry => {
+                        list.innerHTML += `
+                            <div class="alert-box">
+                                <strong>Plate:</strong> ${entry.plate}<br>
+                                <strong>Time:</strong> ${entry.timestamp}<br>
+                                <img src="../${entry.image}" alt="Captured Vehicle Image">
+                            </div>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = `
+                        <div class="no-alerts">
+                            <i class="fas fa-car"></i>
+                            <p>No stolen vehicles detected yet.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching stolen plates:', err);
+            });
+    }
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+        createParticles();
+        setInterval(checkTheftStatus, 2000);
+        setInterval(fetchStolenPlates, 3000);
+    });
+    </script>
+
+<script>
+  // Replace your existing audio element with this more comprehensive setup
+// Place this in the HTML part, just before the closing </body> tag
+const audioSection = `
+    <!-- Alert Sound System -->
+    <audio id="alert-sound-1" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/bell_ring.mp3" preload="auto"></audio>
+    <audio id="alert-sound-2" src="https://cdnjs.cloudflare.com/ajax/libs/ion-sound/3.0.7/sounds/alarm_clock.mp3" preload="auto"></audio>
+`;
+document.body.insertAdjacentHTML('beforeend', audioSection);
+
+// Replace your existing checkTheftStatus function with this enhanced version
+function checkTheftStatus() {
+    fetch('/app/is_theft')
+        .then(res => res.json())
+        .then(data => {
+            const isTheft = data.is_theft;
+            const video = document.getElementById("video-feed");
+            const alertBanner = document.getElementById("theft-alert");
+            
+            if (isTheft) {
+                video.classList.add("blinking");
+                alertBanner.style.display = "block";
+
+                if (!previousTheft) {
+                    // Play multiple alert sounds for a more prominent effect
+                    playAlertSounds();
+                    
+                    // Set up continuous siren if theft is ongoing
+                    if (!window.sirenInterval) {
+                        window.sirenInterval = setInterval(playAlertSounds, 3000);
+                    }
+                }
+
+                previousTheft = true;
+            } else {
+                video.classList.remove("blinking");
+                alertBanner.style.display = "none";
+                previousTheft = false;
+                
+                // Clear interval when theft is no longer detected
+                if (window.sirenInterval) {
+                    clearInterval(window.sirenInterval);
+                    window.sirenInterval = null;
+                }
+            }
+        })
+        .catch(err => console.error("Error checking theft status:", err));
+}
+
+// New function to play multiple alert sounds
+function playAlertSounds() {
+    // Try to play both sounds for a more noticeable alert
+    const sound1 = document.getElementById("alert-sound-1");
+    const sound2 = document.getElementById("alert-sound-2");
+    
+    // Reset sounds to beginning
+    sound1.currentTime = 0;
+    sound2.currentTime = 0;
+    
+    // Create promises for each sound play attempt
+    const playPromise1 = sound1.play().catch(e => console.log("Sound play failed:", e));
+    
+    // Play second sound with slight delay for better effect
+    setTimeout(() => {
+        sound2.play().catch(e => console.log("Sound play failed:", e));
+    }, 300);
+    
+    // If browser API is available, try to increase volume
+    try {
+        sound1.volume = 1.0;
+        sound2.volume = 1.0;
+    } catch (e) {
+        console.log("Couldn't adjust volume");
+    }
+}
+
+// Add an initialization function to set up audio with user interaction
+function initAudio() {
+    // Function to enable audio on user interaction
+    function setupAudio() {
+        const sound1 = document.getElementById("alert-sound-1");
+        const sound2 = document.getElementById("alert-sound-2");
+        
+        // Pre-load and configure audio
+        sound1.load();
+        sound2.load();
+        
+        // Play then immediately pause to "unlock" audio on iOS/Safari
+        sound1.play().then(() => sound1.pause()).catch(e => console.log("Audio setup failed"));
+        sound2.play().then(() => sound2.pause()).catch(e => console.log("Audio setup failed"));
+        
+        // Remove event listeners once audio is initialized
+        document.removeEventListener('click', setupAudio);
+        document.removeEventListener('touchstart', setupAudio);
+    }
+    
+    // Add event listeners for user interaction
+    document.addEventListener('click', setupAudio);
+    document.addEventListener('touchstart', setupAudio);
+    
+    // Also add a button that users can explicitly click to enable audio
+    const audioEnableButton = document.createElement('button');
+    audioEnableButton.innerText = '🔊 Enable Alerts';
+    audioEnableButton.style.position = 'fixed';
+    audioEnableButton.style.bottom = '20px';
+    audioEnableButton.style.right = '20px';
+    audioEnableButton.style.zIndex = '1000';
+    audioEnableButton.style.padding = '10px 15px';
+    audioEnableButton.style.background = 'var(--primary)';
+    audioEnableButton.style.border = 'none';
+    audioEnableButton.style.borderRadius = '8px';
+    audioEnableButton.style.color = 'white';
+    audioEnableButton.style.cursor = 'pointer';
+    
+    audioEnableButton.addEventListener('click', function() {
+        setupAudio();
+        this.innerText = '🔊 Alerts Enabled';
+        this.style.background = 'var(--success)';
+        setTimeout(() => this.style.display = 'none', 2000);
+    });
+    
+    document.body.appendChild(audioEnableButton);
+}
+
+// Add this to your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+    initAudio(); // Initialize audio system
+    setInterval(checkTheftStatus, 2000);
+    setInterval(fetchStolenPlates, 3000);
+});
+</script>
+</body>
+</html>

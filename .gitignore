@@ -1,0 +1,33 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Local development settings
+.env
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Ignore sort folder completely
+sort/
+
+# Data files (optional - uncomment if you don't want to track these)
+/data/uploads/
+
+# Environment variables
+.env
+.env.*
+

@@ -1,3 +1,4 @@
+# ------------- Model --------------
 ultralytics
 pandas
 opencv-python
@@ -5,3 +6,13 @@ numpy
 scipy
 easyocr
 filterpy
+
+# ------------ Application -----------
+flask
+uvicorn
+fastapi
+pydantic
+
+
+python-multipart
+pandas
